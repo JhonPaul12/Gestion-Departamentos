@@ -4,6 +4,8 @@ package logica;
 import com.mysql.jdbc.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
 public class Conexion_BaseDatos {
      // Declaramos la conexion a mysql
     private static Connection con;
@@ -29,5 +31,44 @@ public class Conexion_BaseDatos {
         catch (ClassNotFoundException | SQLException e){
             System.out.println("no se logro");
         }
-    }                 
+    } 
+    
+    public boolean verificarUsuario(String usuarioIngresado, String contrasenaIngresada) {
+        con = null;
+        boolean credencialesValidas = false; 
+
+        try {
+ 
+            Class.forName(driver);
+
+            con = (Connection) DriverManager.getConnection(url, user, pass);
+
+            if (con != null) {
+                String query = "SELECT * FROM docente WHERE email = '" + usuarioIngresado + "' AND contrasena = '" + contrasenaIngresada + "'";
+
+                Statement stmt = con.createStatement();
+
+                ResultSet rs = stmt.executeQuery(query);
+
+                if (rs.next()) {
+                    credencialesValidas = true;
+                }
+            }
+
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error al cargar el controlador JDBC: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Error de conexión a la base de datos: " + e.getMessage());
+        } finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar la conexión: " + e.getMessage());
+            }
+        }
+
+        return credencialesValidas; 
+    }
 }
